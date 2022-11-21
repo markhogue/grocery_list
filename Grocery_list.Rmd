@@ -4,6 +4,8 @@ date: '`r format(Sys.Date(),"%B %d,%Y")`'
 output: 
   word_document:
     reference_docx: docx-grocery-list-template.docx
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -13,9 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r echo = FALSE, message = FALSE, ft.align="left"}
 library(readxl)
 library(dplyr)
-library(WordR)
 library(flextable)
-library(officer)
 
 my_dir <- "C:/R_files/grocery_list/"
 
@@ -23,15 +23,17 @@ groc_list <- readxl::read_xlsx(paste0(my_dir, "/grocery.xlsx"), sheet = "list")
 
 store <- "my_store" # change to your tab name for the store you're using.
 
-store_df <- readxl::read_xlsx(paste0(my_dir, "/grocery.xlsx"), sheet = paste0(store), range = "a1:b100")
+store_df <- readxl::read_xlsx(paste0(my_dir, "/grocery.xlsx"), sheet = paste0(store)) #, range = "a1:b100")
 
 store_df <- store_df[which(!is.na(store_df$order)), ]
 
 shop_list_order <- right_join(store_df, groc_list)
 
+shop_list_order <- shop_list_order[!is.na(shop_list_order$item), ]
+
 shop_list_order <- shop_list_order[order(shop_list_order$order), ]
 
-ft <- flextable(shop_list_order[ , 2:3], cwidth = 3)
+ft <- flextable(shop_list_order[ , c(2, 4)], cwidth = 3)
 ft <- width(ft, width = 1.5)
 ft
 ```
